@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { StreamingService } from '../services/streaming/StreamingService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const streamingService = new StreamingService();

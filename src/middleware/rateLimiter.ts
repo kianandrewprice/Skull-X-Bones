@@ -40,6 +40,18 @@ export const uploadLimiter = rateLimit({
   },
 });
 
+// Rate limiter for read operations
+export const readLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 100, // 100 requests per minute
+  message: {
+    success: false,
+    error: {
+      message: 'Too many read requests, please slow down.'
+    }
+  },
+});
+
 // Rate limiter for write operations
 export const writeLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute

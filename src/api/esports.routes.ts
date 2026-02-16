@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { EsportsService } from '../services/esports/EsportsService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const esportsService = new EsportsService();

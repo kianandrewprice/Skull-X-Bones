@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { MarketplaceService } from '../services/marketplace/MarketplaceService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const marketplaceService = new MarketplaceService();
@@ -35,7 +35,7 @@ router.post('/products', authenticate, writeLimiter, async (req: AuthRequest, re
   }
 });
 
-router.get('/cart', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/cart', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const cart = await marketplaceService.getCart(req.user!.id);
     res.json({ success: true, data: cart });
@@ -71,7 +71,7 @@ router.post('/orders', authenticate, writeLimiter, async (req: AuthRequest, res,
   }
 });
 
-router.get('/orders', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/orders', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const orders = await marketplaceService.getUserOrders(req.user!.id);
     res.json({ success: true, data: orders });
@@ -80,7 +80,7 @@ router.get('/orders', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.get('/orders/:id', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/orders/:id', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const order = await marketplaceService.getOrderById(req.params.id);
     res.json({ success: true, data: order });

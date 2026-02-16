@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { TicketingService } from '../services/ticketing/TicketingService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const ticketingService = new TicketingService();
@@ -62,7 +62,7 @@ router.post('/orders', authenticate, writeLimiter, async (req: AuthRequest, res,
   }
 });
 
-router.get('/my-tickets', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/my-tickets', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const tickets = await ticketingService.getUserTickets(req.user!.id);
     res.json({ success: true, data: tickets });
@@ -71,7 +71,7 @@ router.get('/my-tickets', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.get('/tickets/:id', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/tickets/:id', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const ticket = await ticketingService.getTicketById(req.params.id);
     res.json({ success: true, data: ticket });

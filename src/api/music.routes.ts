@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { MusicService } from '../services/music/MusicService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const musicService = new MusicService();
@@ -62,7 +62,7 @@ router.post('/songs', authenticate, writeLimiter, async (req: AuthRequest, res, 
   }
 });
 
-router.post('/songs/:id/play', async (req, res, next) => {
+router.post('/songs/:id/play', readLimiter, async (req, res, next) => {
   try {
     await musicService.recordPlay(req.params.id);
     res.json({ success: true, message: 'Play recorded' });

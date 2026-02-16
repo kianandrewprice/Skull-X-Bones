@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { UserService } from '../services/user/UserService';
-import { writeLimiter } from '../middleware/rateLimiter';
+import { writeLimiter, readLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const userService = new UserService();
 
-router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
+router.get('/me', authenticate, readLimiter, async (req: AuthRequest, res, next) => {
   try {
     const user = await userService.getUserById(req.user!.id);
     res.json({ success: true, data: user });
@@ -33,7 +33,7 @@ router.post('/verification/request', authenticate, writeLimiter, async (req: Aut
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', readLimiter, async (req, res, next) => {
   try {
     const user = await userService.getPublicProfile(req.params.id);
     res.json({ success: true, data: user });
