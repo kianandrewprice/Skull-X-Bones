@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { ForumsService } from '../services/forums/ForumsService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const forumsService = new ForumsService();
@@ -43,7 +44,7 @@ router.get('/threads/:threadId/posts', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const forum = await forumsService.createForum(req.user!.id, req.body);
     res.status(201).json({ success: true, data: forum });
@@ -52,7 +53,7 @@ router.post('/', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.post('/:forumId/threads', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/:forumId/threads', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const thread = await forumsService.createThread(req.params.forumId, req.user!.id, req.body);
     res.status(201).json({ success: true, data: thread });
@@ -61,7 +62,7 @@ router.post('/:forumId/threads', authenticate, async (req: AuthRequest, res, nex
   }
 });
 
-router.post('/threads/:threadId/posts', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/threads/:threadId/posts', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const post = await forumsService.createPost(req.params.threadId, req.user!.id, req.body);
     res.status(201).json({ success: true, data: post });
@@ -70,7 +71,7 @@ router.post('/threads/:threadId/posts', authenticate, async (req: AuthRequest, r
   }
 });
 
-router.post('/posts/:postId/like', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/posts/:postId/like', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await forumsService.likePost(req.params.postId, req.user!.id);
     res.json({ success: true, message: 'Post liked' });

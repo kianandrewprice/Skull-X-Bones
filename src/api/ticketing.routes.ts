@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { TicketingService } from '../services/ticketing/TicketingService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const ticketingService = new TicketingService();
@@ -34,7 +35,7 @@ router.get('/events/:id/ticket-types', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/events', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/events', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const event = await ticketingService.createEvent(req.user!.id, req.body);
     res.status(201).json({ success: true, data: event });
@@ -43,7 +44,7 @@ router.post('/events', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.post('/events/:id/ticket-types', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/events/:id/ticket-types', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const ticketType = await ticketingService.createTicketType(req.params.id, req.body);
     res.status(201).json({ success: true, data: ticketType });
@@ -52,7 +53,7 @@ router.post('/events/:id/ticket-types', authenticate, async (req: AuthRequest, r
   }
 });
 
-router.post('/orders', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/orders', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const order = await ticketingService.purchaseTickets(req.user!.id, req.body);
     res.status(201).json({ success: true, data: order });
@@ -79,7 +80,7 @@ router.get('/tickets/:id', authenticate, async (req: AuthRequest, res, next) => 
   }
 });
 
-router.post('/tickets/:id/validate', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/tickets/:id/validate', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const result = await ticketingService.validateTicket(req.params.id);
     res.json({ success: true, data: result });

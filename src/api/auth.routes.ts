@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { AuthService } from '../services/auth/AuthService';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const authService = new AuthService();
 
-router.post('/register', async (req, res, next) => {
+router.post('/register', authLimiter, async (req, res, next) => {
   try {
     const result = await authService.register(req.body);
     res.status(201).json({ success: true, data: result });
@@ -13,7 +14,7 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', authLimiter, async (req, res, next) => {
   try {
     const result = await authService.login(req.body.email, req.body.password);
     res.json({ success: true, data: result });

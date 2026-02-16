@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { MarketplaceService } from '../services/marketplace/MarketplaceService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const marketplaceService = new MarketplaceService();
@@ -25,7 +26,7 @@ router.get('/products/:id', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/products', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/products', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const product = await marketplaceService.createProduct(req.user!.id, req.body);
     res.status(201).json({ success: true, data: product });
@@ -43,7 +44,7 @@ router.get('/cart', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.post('/cart/items', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/cart/items', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await marketplaceService.addToCart(req.user!.id, req.body);
     res.json({ success: true, message: 'Item added to cart' });
@@ -52,7 +53,7 @@ router.post('/cart/items', authenticate, async (req: AuthRequest, res, next) => 
   }
 });
 
-router.delete('/cart/items/:itemId', authenticate, async (req: AuthRequest, res, next) => {
+router.delete('/cart/items/:itemId', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await marketplaceService.removeFromCart(req.user!.id, req.params.itemId);
     res.json({ success: true, message: 'Item removed from cart' });
@@ -61,7 +62,7 @@ router.delete('/cart/items/:itemId', authenticate, async (req: AuthRequest, res,
   }
 });
 
-router.post('/orders', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/orders', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const order = await marketplaceService.createOrder(req.user!.id, req.body);
     res.status(201).json({ success: true, data: order });

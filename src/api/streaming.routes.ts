@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { StreamingService } from '../services/streaming/StreamingService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const streamingService = new StreamingService();
@@ -52,7 +53,7 @@ router.get('/schedule', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/streams', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/streams', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const stream = await streamingService.createStream(req.user!.id, req.body);
     res.status(201).json({ success: true, data: stream });
@@ -61,7 +62,7 @@ router.post('/streams', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.put('/streams/:id/status', authenticate, async (req: AuthRequest, res, next) => {
+router.put('/streams/:id/status', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await streamingService.updateStreamStatus(req.params.id, req.body.status);
     res.json({ success: true, message: 'Stream status updated' });
@@ -70,7 +71,7 @@ router.put('/streams/:id/status', authenticate, async (req: AuthRequest, res, ne
   }
 });
 
-router.post('/streams/:id/chat', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/streams/:id/chat', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await streamingService.sendChatMessage(req.params.id, req.user!.id, req.body.message);
     res.json({ success: true, message: 'Message sent' });
@@ -79,7 +80,7 @@ router.post('/streams/:id/chat', authenticate, async (req: AuthRequest, res, nex
   }
 });
 
-router.post('/vods', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/vods', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const vod = await streamingService.uploadVOD(req.user!.id, req.body);
     res.status(201).json({ success: true, data: vod });

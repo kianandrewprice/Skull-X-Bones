@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { UserService } from '../services/user/UserService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const userService = new UserService();
@@ -14,7 +15,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.put('/me', authenticate, async (req: AuthRequest, res, next) => {
+router.put('/me', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const user = await userService.updateUser(req.user!.id, req.body);
     res.json({ success: true, data: user });
@@ -23,7 +24,7 @@ router.put('/me', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.post('/verification/request', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/verification/request', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await userService.requestVerification(req.user!.id, req.body);
     res.json({ success: true, message: 'Verification request submitted' });

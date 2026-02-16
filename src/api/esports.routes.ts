@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { EsportsService } from '../services/esports/EsportsService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const esportsService = new EsportsService();
@@ -61,7 +62,7 @@ router.get('/matches/:id', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/teams', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/teams', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const team = await esportsService.createTeam(req.user!.id, req.body);
     res.status(201).json({ success: true, data: team });
@@ -70,7 +71,7 @@ router.post('/teams', authenticate, async (req: AuthRequest, res, next) => {
   }
 });
 
-router.post('/tournaments', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/tournaments', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const tournament = await esportsService.createTournament(req.user!.id, req.body);
     res.status(201).json({ success: true, data: tournament });
@@ -79,7 +80,7 @@ router.post('/tournaments', authenticate, async (req: AuthRequest, res, next) =>
   }
 });
 
-router.post('/tournaments/:id/register', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/tournaments/:id/register', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await esportsService.registerForTournament(req.params.id, req.body.teamId);
     res.json({ success: true, message: 'Registered successfully' });
@@ -88,7 +89,7 @@ router.post('/tournaments/:id/register', authenticate, async (req: AuthRequest, 
   }
 });
 
-router.put('/matches/:id/result', authenticate, async (req: AuthRequest, res, next) => {
+router.put('/matches/:id/result', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await esportsService.updateMatchResult(req.params.id, req.body);
     res.json({ success: true, message: 'Match result updated' });

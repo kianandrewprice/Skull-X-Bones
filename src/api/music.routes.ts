@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AuthRequest, authenticate } from '../middleware/auth';
 import { MusicService } from '../services/music/MusicService';
+import { writeLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 const musicService = new MusicService();
@@ -52,7 +53,7 @@ router.get('/song-wars', async (req, res, next) => {
 });
 
 // Protected routes
-router.post('/songs', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/songs', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     const song = await musicService.createSong(req.user!.id, req.body);
     res.status(201).json({ success: true, data: song });
@@ -70,7 +71,7 @@ router.post('/songs/:id/play', async (req, res, next) => {
   }
 });
 
-router.post('/song-wars/:id/vote', authenticate, async (req: AuthRequest, res, next) => {
+router.post('/song-wars/:id/vote', authenticate, writeLimiter, async (req: AuthRequest, res, next) => {
   try {
     await musicService.voteInSongWar(req.params.id, req.user!.id, req.body.songId);
     res.json({ success: true, message: 'Vote recorded' });
