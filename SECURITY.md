@@ -153,6 +153,14 @@ For security researchers:
 | Date | Type | Issues Found | Issues Fixed | Status |
 |------|------|--------------|--------------|--------|
 | 2026-02-16 | CodeQL Scan | 36 | 36 | ✅ Complete |
+| 2026-02-16 | Dependency Audit | 2 | 2 | ✅ Complete |
+
+### Dependency Vulnerabilities Fixed
+
+**nodemailer 6.9.7 → 7.0.11**
+- **CVE-2024-XXXXX**: DoS vulnerability in addressparser (recursive calls)
+- **CVE-2024-XXXXX**: Email to unintended domain due to interpretation conflict
+- **Fix**: Updated to nodemailer 7.0.11 which includes patches for both vulnerabilities
 
 ## Conclusion
 
